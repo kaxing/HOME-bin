@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+OLDPWD=$PWD
+PWD="~/Downloads"
+echo "Switching directory to $PWD"
+
+ctrl-c() {
+	cd -
+	echo "Back to original directory."
+	exit
+}
+
+trap ctrl-c SIGINT
+
+if [[ "$#" -ne "1" ]]; then
+	cat <<- BLOCK
+		Please assign only one command name,
+		or putting the command name and aurgumens in the same quotes,
+		like this: ${0##*/} "program -opt1"
+		Thank you!
+	BLOCK
+	exit 1
+fi
+
+while read url; do
+	eval \$@ "\$url"
+	echo -e "\n?:$? Ctrl-C to Exit\n"
+done
