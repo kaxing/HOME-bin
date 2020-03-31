@@ -1,26 +1,47 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 
 OLDPWD=$PWD
-PWD="~/Downloads"
-echo "Switching directory to $PWD"
+
+PWD="$HOME/Downloads"
+echo "Switching directory to: $PWD"
+
+back-to-previous-directory() {
+	echo -n "Going back to previous working directory: "
+	cd -
+}
 
 ctrl-c() {
-	cd -
-	echo "Back to original directory."
+	echo -e "\n"
+	back-to-previous-directory
 	exit
 }
 
+check-command() {
+	if [[ "$#" -lt "1" ]]; then
+		cat <<- BLOCK
+			Please put the aurgumens as in following orders:
+				$ ${0##*/} one_command --some-option --another-option
+			Thank you!
+
+		BLOCK
+		back-to-previous-directory
+		exit 1
+	fi
+
+	if [[ ! $(command -v "$1") ]]; then
+		echo "Command does not exist!"
+		back-to-previous-directory
+		exit 1
+	fi
+}
+
+# Script begin here
+
+check-command "$@"
+
 trap ctrl-c SIGINT
 
-if [[ "$#" -ne "1" ]]; then
-	cat <<- BLOCK
-		Please assign only one command name,
-		or putting the command name and aurgumens in the same quotes,
-		like this: ${0##*/} "program -opt1"
-		Thank you!
-	BLOCK
-	exit 1
-fi
+echo "Feel free to paste multi-strings and the script will do the work"
 
 while read url; do
 	eval \$@ "\$url"
