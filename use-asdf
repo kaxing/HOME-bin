@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+(which asdf) || (echo "asdf is not present in your environment." && exit 1)
+
+[ ! -z "$@" ] || exit 1
+
+asdf where $@ || (asdf plugin list all|grep -w $@) || exit 1
+
+asdf plugin add $@ || true
+
+asdf install $@ latest || echo "something wrong"
+asdf global $@ latest
+
+asdf reshim $@ && echo "reshim $@"
+asdf current $@
